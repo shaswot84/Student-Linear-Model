@@ -25,11 +25,11 @@ def main():
     st.title("Student Performance Linear Model")
     st.write("Enter your data to get a prediction for performance")
 
-    hours_studied  = st.number_input("Hours studeied?", min_value=1, max_value=10, value=5)
-    previous_score = st.number_input("Previous Scores?",value = 70, min_value=40)
+    hours_studied  = st.number_input("Hours studeied?", min_value=1, max_value=16, value=6)
+    previous_score = st.number_input("Previous Scores?",value = 70, min_value=20,max_value=100)
     extracurricular_activities = st.selectbox("Extra Curricular Activity",["Yes","No"])
-    sleep_hours = st.number_input("Sleep Hours?",min_value=3,max_value=10)
-    paper_practiced  = st.number_input("Sample Question Papers Practiced",value=10)
+    sleep_hours = st.number_input("Sleep Hours?",min_value=3,max_value=10,value=5)
+    paper_practiced  = st.number_input("Sample Question Papers Practiced",min_value=0,max_value=30,value=10)
 
     if st.button("Predict your score"):
         user_data = {
