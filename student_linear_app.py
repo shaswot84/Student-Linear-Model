@@ -4,15 +4,26 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 import pickle
 
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+uri = "mongodb+srv://shaswot:CoibrbQ78wbNVvyh@cluster0.h9u3f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+client = MongoClient(uri, server_api=ServerApi('1'))
+
+db = client["Student"]  #db name
+collection = db["student_prediction"]  #collection analogous to table in MYsql
+
+
 def load_model():
     with open("linear_model.pkl","rb") as file:
         model, scaler, le = pickle.load(file=file)
         return model,scaler,le
     
 def preprocessing_data(data, scaler, le):
-    data["Extracurricular Activities"] = le.transform([data["Extracurricular Activities"]])
+    data["Extracurricular Activities"] = le.transform([data["Extracurricular Activities"]]) #performaing label encoding on categorical data colum i.e Extracurrilar Activities 
     df = pd.DataFrame(data)
-    df_transformed = scaler.transform(df)
+    df_transformed = scaler.transform(df)  #normalize the data
     return df_transformed
 
 def predict_data(data):
@@ -40,6 +51,10 @@ def main():
             "Sample Question Papers Practiced":paper_practiced
         }
         prediction = predict_data(user_data)
+
+        user_data["prediction"] = prediction  #add the output in the exsisting dictionary
+        collection.insert_one(user_data)  #to mongodb
+        
         st.success(f"Your prediction result is: {prediction}")
 if __name__ == "__main__":
     main()
