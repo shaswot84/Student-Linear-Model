@@ -14,7 +14,6 @@ client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["Student"]  #db name
 collection = db["student_prediction"]  #collection analogous to table in MYsql
 
-user_data = {}
 def load_model():
     with open("linear_model.pkl","rb") as file:
         model, scaler, le = pickle.load(file=file)
@@ -53,7 +52,7 @@ def main():
         prediction = predict_data(user_data)
 
         st.success(f"Your prediction result is: {prediction}")
-    user_data["prediction"] = prediction  #add the output in the exsisting dictionary
+    user_data["prediction"] = float(prediction)  #add the output in the exsisting dictionary
     collection.insert_one(user_data)  #to mongodb
 
 if __name__ == "__main__":
