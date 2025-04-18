@@ -52,9 +52,11 @@ def main():
         }
         prediction = predict_data(user_data)
 
-        user_data["prediction"] = prediction  #add the output in the exsisting dictionary
-        collection.insert_one(user_data)  #to mongodb
-        
         st.success(f"Your prediction result is: {prediction}")
+    # user_data["prediction"] = prediction  #add the output in the exsisting dictionary
+    # collection.insert_one(user_data)  #to mongodb
+    all_data = user_data 
+    all_data["prediction"] =prediction
+    collection.insert_one(all_data)
 if __name__ == "__main__":
     main()
