@@ -6,56 +6,54 @@ import pickle
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-
 uri = "mongodb+srv://shaswot:CoibrbQ78wbNVvyh@cluster0.h9u3f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-
 client = MongoClient(uri, server_api=ServerApi('1'))
 
-db = client["Student"]  #db name
-collection = db["student_prediction"]  #collection analogous to table in MYsql
+db = client['student']
+collection = db["student_pred"]
 
 def load_model():
-    with open("linear_model.pkl","rb") as file:
-        model, scaler, le = pickle.load(file=file)
-        return model,scaler,le
-    
-def preprocessing_data(data, scaler, le):
-    data["Extracurricular Activities"] = le.transform([data["Extracurricular Activities"]]) #performaing label encoding on categorical data colum i.e Extracurrilar Activities 
-    df = pd.DataFrame(data)
-    df_transformed = scaler.transform(df)  #normalize the data
+    with  open("linear_model.pkl",'rb') as file:
+        model,scaler,le=pickle.load(file)
+    return model,scaler,le
+
+def preprocesssing_input_data(data, scaler, le):
+    data['Extracurricular Activities']= le.transform([data['Extracurricular Activities']])[0]
+    df = pd.DataFrame([data])
+    df_transformed = scaler.transform(df)
     return df_transformed
 
 def predict_data(data):
-    model,scaler,le= load_model()
-    processed_df= preprocessing_data(data,scaler,le)
-    prediction  =model.predict(processed_df)
+    model,scaler,le = load_model()
+    processed_data = preprocesssing_input_data(data,scaler,le)
+    prediction = model.predict(processed_data)
     return prediction
 
 def main():
-    st.title("Student Performance Linear Model")
-    st.write("Enter your data to get a prediction for performance")
-
-    hours_studied  = st.number_input("Hours studeied?", min_value=1, max_value=16, value=6)
-    previous_score = st.number_input("Previous Scores?",value = 70, min_value=20,max_value=100)
-    extracurricular_activities = st.selectbox("Extra Curricular Activity",["Yes","No"])
-    sleep_hours = st.number_input("Sleep Hours?",min_value=3,max_value=10,value=5)
-    paper_practiced  = st.number_input("Sample Question Papers Practiced",min_value=0,max_value=30,value=10)
-
-    if st.button("Predict your score"):
+    st.title("student performnce perdiction")
+    st.write("enter your data to get a prediction for your performance")
+    
+    hour_sutdied = st.number_input("Hours studied",min_value = 1, max_value = 10 , value = 5)
+    prvious_score = st.number_input("previous score",min_value = 40, max_value = 100 , value = 70)
+    extra = st.selectbox("extra curri activity" , ['Yes',"No"])
+    sleeping_hour = st.number_input("sleeping hours",min_value = 4, max_value = 10 , value = 7)
+    number_of_peper_solved = st.number_input("number of question paper solved",min_value = 0, max_value = 10 , value = 5)
+    
+    if st.button("predict-your_score"):
         user_data = {
-            "Hours Studied":hours_studied,
-            "Previous Scores":previous_score,
-            "Extracurricular Activities":extracurricular_activities,
-            "Sleep Hours":sleep_hours,
-            "Sample Question Papers Practiced":paper_practiced
+            "Hours Studied":hour_sutdied,
+            "Previous Scores":prvious_score,
+            "Extracurricular Activities":extra,
+            "Sleep Hours":sleeping_hour,
+            "Sample Question Papers Practiced":number_of_peper_solved
         }
         prediction = predict_data(user_data)
-
-        st.success(f"Your prediction result is: {prediction}")
-    user_data["prediction"] = float(prediction)  #add the output in the exsisting dictionary
-    user_data = {key: int(value) if isinstance(value, np.integer) else float(value) if isinstance(value, np.floating) else value for key, value in user_data.items()}
-
-    collection.insert_one(user_data)  #to mongodb
-
+        st.success(f"your prediciotn result is {prediction}")
+        user_data['prediction'] = round(float(prediction[0]),2)
+        user_data = {key: int(value) if isinstance(value, np.integer) else float(value) if isinstance(value, np.floating) else value for key, value in user_data.items()}
+        collection.insert_one(user_data)
+        
+    
 if __name__ == "__main__":
     main()
+    
