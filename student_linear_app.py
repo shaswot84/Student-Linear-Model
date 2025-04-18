@@ -53,6 +53,8 @@ def main():
 
         st.success(f"Your prediction result is: {prediction}")
     user_data["prediction"] = float(prediction)  #add the output in the exsisting dictionary
+    user_data = {key: int(value) if isinstance(value, np.integer) else float(value) if isinstance(value, np.floating) else value for key, value in user_data.items()}
+
     collection.insert_one(user_data)  #to mongodb
 
 if __name__ == "__main__":
